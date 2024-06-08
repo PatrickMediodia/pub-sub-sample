@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-pub-cli": "node publishers/publisher-cli.js",
     "start-pub-api": "node publishers/publisher-api.js",
-    "start-sub-cli": "node consumers/consumer-cli.js"
+    "start-sub-cli": "node consumers/consumer-cli.js",
+    "start-sub-ws": "node consumers/consumer-ws.js"
   },
   "author": "",
   "license": "ISC",

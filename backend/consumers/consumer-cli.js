@@ -1,5 +1,5 @@
 import yargs from "yargs";
-import consumer from "./consumer";
+import consumer from "./consumer.js";
 
 const { argv } = yargs(process.argv.slice(2));
 
