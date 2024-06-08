@@ -1,19 +1,7 @@
-import redis from "redis";
 import yargs from "yargs";
+import consumer from "./consumer";
 
 const { argv } = yargs(process.argv.slice(2));
-
-const client = redis.createClient();
-const subscriber = client.duplicate();
-
-const consumer = async (topic) => {
-    console.log(`Subscribed to topic: ${topic}\n`);
-
-    await subscriber.connect();
-    await subscriber.subscribe(topic, (msg) => {
-        console.log(`${topic}: ${msg}`);
-    });
-};
 
 consumer(argv.topic);
 
