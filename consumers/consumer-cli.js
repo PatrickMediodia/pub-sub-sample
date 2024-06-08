@@ -1,4 +1,7 @@
 import redis from "redis";
+import yargs from "yargs";
+
+const { argv } = yargs(process.argv.slice(2));
 
 const client = redis.createClient();
 const subscriber = client.duplicate();
@@ -12,5 +15,7 @@ const consumer = async (topic) => {
     });
 };
 
-// get first argument after node(1) and command(2)
-consumer(process.argv[2]);
+consumer(argv.topic);
+
+//TODO: Subscribe to multiple topics
+//Run by using the command npm run start-sub-cli -- --topic=<topic>
