@@ -21,22 +21,19 @@ wss.on('connection', async function connection(ws) {
 
     ws.on('message', async function message(data) {
         const topic = data.toString();
-        console.log(topic);
+        console.log(`\nTopic: ${topic}`);
+
         await subscribe(topic, ws);
     });
 });
 
-server.listen(
-    PORT,
-    () => { console.log(`Listening on port:${PORT}`) }
-);
+server.listen(PORT, () => console.log(`Listening on port:${PORT}`));
 
 const subscribe = async (topic, ws) => {
     await subscriber.unsubscribe();
 
     await subscriber.subscribe(topic, (msg) => {
-        const response = `${topic}: ${msg}`;
-        console.log(response);
+        console.log(`New Message: ${msg}`);
         ws.send(msg);
     });
 };
