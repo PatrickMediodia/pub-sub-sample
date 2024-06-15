@@ -9,11 +9,12 @@ import {
   Messages,
   InputField,
   Form
-} from '../components/index';
+} from './components/index';
 
 function App() {
   const [topic, setTopic] = useState('all');
   const [messages, setMessages] = useState([]);
+  const [isReady, setIsReady] = useState(false);
 
   const WS_URL = "ws://localhost:3000"
   const { sendMessage, lastJsonMessage, readyState } = useWebSocket(
@@ -23,8 +24,6 @@ function App() {
       shouldReconnect: () => true,
     },
   );
-
-  const isReady = readyState === ReadyState.OPEN;
 
   // change topic
   const handleSubmit = (e) => {
@@ -44,9 +43,12 @@ function App() {
 
   // send initial topic on ready state
   useEffect(() => {
-    if (isReady) {
+    const isReadyLocal = readyState === ReadyState.OPEN;
+
+    if (isReadyLocal) {
       sendMessage(topic);
     }
+    setIsReady(isReadyLocal);
   }, [readyState]);
 
   return (

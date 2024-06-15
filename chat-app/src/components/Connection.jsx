@@ -1,4 +1,4 @@
-import ColoredCircle from '../components/Circle';
+import ColoredCircle from './Circle';
 
 const Connection = ({ connectionState }) => {
     return (
