@@ -25,7 +25,6 @@ wss.on('connection', async function connection(ws) {
 
         switch (type) {
             case 'topic':
-                console.log(`\nTopic: ${data.topic}`);
                 await subscribe(data.topic, ws);
                 break;
 
@@ -46,6 +45,7 @@ server.listen(PORT, () => console.log(`Listening on port:${PORT}`));
 const subscribe = async (topic, ws) => {
     await subscriber.unsubscribe();
 
+    console.log(`\nTopic: ${topic}`);
     await subscriber.subscribe(topic, (msg) => {
         console.log(`New Message: ${msg}`);
         ws.send(msg);
