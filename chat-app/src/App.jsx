@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useEffect } from 'react';
+import { generateUsername } from "unique-username-generator";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 
 import {
@@ -11,12 +12,13 @@ import {
   Form
 } from './components/index';
 
+const username = generateUsername();
+
 function App() {
-  const [topic, setTopic] = useState('all');
+  const [topic, setTopic] = useState('general');
+  const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isReady, setIsReady] = useState(false);
-  const [currentUser, setCurrentUser] = useState('patrick');
-  const [message, setMessage] = useState('');
 
   const WS_URL = "ws://localhost:3000"
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
@@ -42,7 +44,7 @@ function App() {
     sendJsonMessage({
       type: 'message',
       data: {
-        username: currentUser,
+        username,
         topic,
         message, 
       },
@@ -60,15 +62,13 @@ function App() {
 
   // send initial topic on ready state
   useEffect(() => {
-    const isReadyLocal = readyState === ReadyState.OPEN;
-
-    if (isReadyLocal) {
+    if (readyState === ReadyState.OPEN) {
       sendJsonMessage({
         type: 'topic',
         data: { topic },
       });
     }
-    setIsReady(isReadyLocal);
+    setIsReady(readyState === ReadyState.OPEN);
   }, [readyState]);
 
   return (
@@ -76,12 +76,13 @@ function App() {
       <Form>
         <Header title="Chat Room"/>
         <Connection connectionState={isReady} />
+        <p>Username: {username}</p>
         <InputField value={topic} onChange={(e) => setTopic(e.target.value)} />
         <Button title='Change Room' handleSubmit={handleChangeTopic} />
       </Form>
       <Form>
         <Header title="Messages" />
-        <Messages messages={messages} currentUser={currentUser} />
+        <Messages messages={messages} username={username} />
         <InputField value={message} onChange={(e) => setMessage(e.target.value)} />
         <Button title='Send Message' handleSubmit={handleSendMessage} />
       </Form>

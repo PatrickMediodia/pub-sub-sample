@@ -1,13 +1,16 @@
-const Messages = ({ messages, currentUser }) => {
+const Messages = ({ messages, username }) => {
     return <div className='form-messages'>
-     { messages.length > 1 ? messages.map(function({ username, message }, index) {
-        const msg = `${username}: ${message}`;
-        return <input 
-            className={ username === currentUser ? 'message-user' : 'message-others' }
-            key={index} 
-            value={msg} 
-            disabled="true"
-        />;
+     { messages.length > 0 
+        ? messages.map(function(message, index) {
+            const msg = `${message.username}: ${message.message}`;
+            return <div className="message-box" key={index}>
+                <p 
+                    className={ message.username === username ? 'message-user' : 'message-others' }
+                    key={index} 
+                    value={msg} 
+                    disabled={true}
+                >{msg}</p>
+            </div>;
     }) : 'No Messages to Display' }
     </div>
 };

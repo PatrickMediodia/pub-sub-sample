@@ -65,17 +65,22 @@ html, body, html * {
 .form-messages {
   display: grid;
   width: 35rem;
-  grid-auto-rows: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.message-box {
+  width: 100%;
 }
 
 .message-others {
-  grid-column-start:1;
+  grid-column-start: 1;
+  grid-column-start: 1;
   padding: 0.5rem 0.5rem;
   font-size: 16px;
+  text-align: left;
 }
 
 .message-user {
-  grid-column-start:3;
   padding: 0.5rem 0.5rem;
   font-size: 16px;
   text-align: right;

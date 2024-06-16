@@ -18,7 +18,7 @@ await subscriber.connect();
 wss.on('error', console.error);
 
 wss.on('connection', async function connection(ws) {
-    console.log("A new client connected");
+    console.log("\nA new client connected");
 
     ws.on('message', async function message(d) {
         const { type, data } = JSON.parse(d.toString());
