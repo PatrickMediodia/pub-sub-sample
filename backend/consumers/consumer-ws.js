@@ -2,7 +2,7 @@
 import redis from "redis";
 import express from "express";
 import { createServer } from "http";
-import { WebSocketServer } from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import publish from "../publishers/publisher.js";
 
 const PORT = 3000;
@@ -24,11 +24,14 @@ wss.on('connection', async function connection(ws) {
 
         switch (type) {
             case 'topic':
-                if (clients[data.username] == null) {
-                    clients[data.username] = client.duplicate();
-                    await clients[data.username].connect();
+                if (clients[data.username] === null || clients[data.username] === undefined) {
+                    clients[data.username] = {
+                        client: client.duplicate(),
+                        connection: ws,
+                    };
+                    await clients[data.username]['client'].connect();
                 }
-                await subscribe(data, ws);
+                await subscribe(data);
                 break;
 
             case 'message':
@@ -45,13 +48,13 @@ wss.on('connection', async function connection(ws) {
 
 server.listen(PORT, () => console.log(`Listening on port:${PORT}`));
 
-const subscribe = async (data, ws) => {
+const subscribe = async (data) => {
     const { username, topic } = data;
-    await clients[username].unsubscribe();
+    await clients[username]['client'].unsubscribe();
 
     console.log(`\nTopic: ${topic}`);
-    await clients[username].subscribe(topic, (msg) => {
+    await clients[username]['client'].subscribe(topic, (msg) => {
         console.log(`New Message: ${msg}`);
-        ws.send(msg);
+        clients[username]['connection'].send(msg);
     });
 };
