@@ -15,9 +15,11 @@ function App() {
   const [topic, setTopic] = useState('all');
   const [messages, setMessages] = useState([]);
   const [isReady, setIsReady] = useState(false);
+  const [currentUser, setCurrentUser] = useState('patrick');
+  const [message, setMessage] = useState('');
 
   const WS_URL = "ws://localhost:3000"
-  const { sendMessage, lastJsonMessage, readyState } = useWebSocket(
+  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     WS_URL,
     {
       share: false,
@@ -26,10 +28,25 @@ function App() {
   );
 
   // change topic
-  const handleSubmit = (e) => {
+  const handleChangeTopic = (e) => {
     e.preventDefault();
-    sendMessage(topic);
+    sendJsonMessage({
+      type: 'topic',
+      data: { topic },
+    });
     setMessages([]);
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    sendJsonMessage({
+      type: 'message',
+      data: {
+        username: currentUser,
+        topic,
+        message, 
+      },
+    });
   };
 
   // get message from consumer
@@ -46,7 +63,10 @@ function App() {
     const isReadyLocal = readyState === ReadyState.OPEN;
 
     if (isReadyLocal) {
-      sendMessage(topic);
+      sendJsonMessage({
+        type: 'topic',
+        data: { topic },
+      });
     }
     setIsReady(isReadyLocal);
   }, [readyState]);
@@ -57,11 +77,13 @@ function App() {
         <Header title="Chat Room"/>
         <Connection connectionState={isReady} />
         <InputField value={topic} onChange={(e) => setTopic(e.target.value)} />
-        <Button title='Change Room' handleSubmit={handleSubmit} />
+        <Button title='Change Room' handleSubmit={handleChangeTopic} />
       </Form>
       <Form>
         <Header title="Messages" />
-        <Messages messages={messages} />
+        <Messages messages={messages} currentUser={currentUser} />
+        <InputField value={message} onChange={(e) => setMessage(e.target.value)} />
+        <Button title='Send Message' handleSubmit={handleSendMessage} />
       </Form>
     </>
   )

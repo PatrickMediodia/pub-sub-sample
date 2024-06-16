@@ -3,6 +3,7 @@ import redis from "redis";
 import express from "express";
 import { createServer } from "http";
 import { WebSocketServer } from 'ws';
+import publish from "../publishers/publisher.js";
 
 const PORT = 3000;
 const app = express();
@@ -19,11 +20,25 @@ wss.on('error', console.error);
 wss.on('connection', async function connection(ws) {
     console.log("A new client connected");
 
-    ws.on('message', async function message(data) {
-        const topic = data.toString();
-        console.log(`\nTopic: ${topic}`);
-
-        await subscribe(topic, ws);
+    ws.on('message', async function message(d) {
+        const { type, data } = JSON.parse(d.toString());
+        switch (type) {
+            case 'topic':
+                console.log(`\nTopic: ${data.topic}`);
+                await subscribe(data.topic, ws);
+                break;
+            case 'message':
+                const { username, topic, message } = data;
+                await publish(
+                    username,
+                    topic,
+                    message,
+                );
+                break;
+            default:
+                console.log('Cannot process message');
+                break;
+        }
     });
 });
 

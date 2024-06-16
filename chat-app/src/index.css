@@ -62,7 +62,21 @@ html, body, html * {
   width: 10px;
 }
 
-.message {
+.form-messages {
+  display: grid;
+  width: 35rem;
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.message-others {
+  grid-column-start:1;
   padding: 0.5rem 0.5rem;
   font-size: 16px;
+}
+
+.message-user {
+  grid-column-start:3;
+  padding: 0.5rem 0.5rem;
+  font-size: 16px;
+  text-align: right;
 }
