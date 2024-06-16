@@ -68,7 +68,10 @@ function App() {
     if (readyState === ReadyState.OPEN) {
       sendJsonMessage({
         type: 'topic',
-        data: { topic },
+        data: { 
+          topic,
+          username,
+        },
       });
     }
   }, [readyState]);

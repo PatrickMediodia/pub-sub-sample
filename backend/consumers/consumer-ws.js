@@ -2,7 +2,7 @@
 import redis from "redis";
 import express from "express";
 import { createServer } from "http";
-import WebSocket, { WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 import publish from "../publishers/publisher.js";
 
 const PORT = 3000;
@@ -21,22 +21,16 @@ wss.on('connection', async function connection(ws) {
 
     ws.on('message', async function message(d) {
         const { type, data } = JSON.parse(d.toString());
+        const { username, topic, message } = data;
 
         switch (type) {
             case 'topic':
-                if (clients[data.username] === null || clients[data.username] === undefined) {
-                    clients[data.username] = {
-                        client: client.duplicate(),
-                        connection: ws,
-                    };
-                    await clients[data.username]['client'].connect();
-                }
-                await subscribe(data);
+                await establishConnection(username, ws);
+                await subscribe(username, topic);
                 break;
 
             case 'message':
-                const { username, topic, message } = data;
-                await publish(username,topic,message);
+                await publish(username, topic, message);
                 break;
 
             default:
@@ -48,13 +42,23 @@ wss.on('connection', async function connection(ws) {
 
 server.listen(PORT, () => console.log(`Listening on port:${PORT}`));
 
-const subscribe = async (data) => {
-    const { username, topic } = data;
-    await clients[username]['client'].unsubscribe();
+const establishConnection = async (username, ws) => {
+    if (clients[username] != null) return;
 
-    console.log(`\nTopic: ${topic}`);
-    await clients[username]['client'].subscribe(topic, (msg) => {
-        console.log(`New Message: ${msg}`);
-        clients[username]['connection'].send(msg);
+    clients[username] = {
+        client: client.duplicate(),
+        connection: ws,
+    };
+
+    await clients[username].client.connect();
+};
+
+const subscribe = async (username, topic) => {
+    await clients[username].client.unsubscribe();
+
+    console.log(`\nUser: ${username} subscribed to topic: ${topic}`);
+    await clients[username].client.subscribe(topic, (message) => {
+        console.log(`New Message: ${message}`);
+        clients[username].connection.send(message);
     });
 };
