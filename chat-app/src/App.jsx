@@ -15,10 +15,9 @@ import {
 const username = generateUsername();
 
 function App() {
-  const [topic, setTopic] = useState('general');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [isReady, setIsReady] = useState(false);
+  const [topic, setTopic] = useState('general');
 
   const WS_URL = "ws://localhost:3000"
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
@@ -68,14 +67,13 @@ function App() {
         data: { topic },
       });
     }
-    setIsReady(readyState === ReadyState.OPEN);
   }, [readyState]);
 
   return (
     <>
       <Form>
         <Header title="Chat Room"/>
-        <Connection connectionState={isReady} />
+        <Connection connectionState={readyState === ReadyState.OPEN} />
         <p>Username: {username}</p>
         <InputField value={topic} onChange={(e) => setTopic(e.target.value)} />
         <Button title='Change Room' handleSubmit={handleChangeTopic} />

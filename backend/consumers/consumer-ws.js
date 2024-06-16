@@ -22,19 +22,18 @@ wss.on('connection', async function connection(ws) {
 
     ws.on('message', async function message(d) {
         const { type, data } = JSON.parse(d.toString());
+
         switch (type) {
             case 'topic':
                 console.log(`\nTopic: ${data.topic}`);
                 await subscribe(data.topic, ws);
                 break;
+
             case 'message':
                 const { username, topic, message } = data;
-                await publish(
-                    username,
-                    topic,
-                    message,
-                );
+                await publish(username,topic,message);
                 break;
+
             default:
                 console.log('Cannot process message');
                 break;
