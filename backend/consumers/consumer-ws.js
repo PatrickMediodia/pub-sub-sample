@@ -11,9 +11,8 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
+let clients = {};
 const client = redis.createClient();
-const subscriber = client.duplicate();
-await subscriber.connect();
 
 wss.on('error', console.error);
 
@@ -25,7 +24,11 @@ wss.on('connection', async function connection(ws) {
 
         switch (type) {
             case 'topic':
-                await subscribe(data.topic, ws);
+                if (clients[data.username] == null) {
+                    clients[data.username] = client.duplicate();
+                    await clients[data.username].connect();
+                }
+                await subscribe(data, ws);
                 break;
 
             case 'message':
@@ -42,11 +45,12 @@ wss.on('connection', async function connection(ws) {
 
 server.listen(PORT, () => console.log(`Listening on port:${PORT}`));
 
-const subscribe = async (topic, ws) => {
-    await subscriber.unsubscribe();
+const subscribe = async (data, ws) => {
+    const { username, topic } = data;
+    await clients[username].unsubscribe();
 
     console.log(`\nTopic: ${topic}`);
-    await subscriber.subscribe(topic, (msg) => {
+    await clients[username].subscribe(topic, (msg) => {
         console.log(`New Message: ${msg}`);
         ws.send(msg);
     });

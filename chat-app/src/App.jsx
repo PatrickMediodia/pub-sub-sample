@@ -33,7 +33,10 @@ function App() {
     e.preventDefault();
     sendJsonMessage({
       type: 'topic',
-      data: { topic },
+      data: { 
+        topic,
+        username,
+      },
     });
     setMessages([]);
   };
@@ -48,6 +51,7 @@ function App() {
         message, 
       },
     });
+    setMessage('');
   };
 
   // get message from consumer
@@ -85,7 +89,7 @@ function App() {
         <Button title='Send Message' handleSubmit={handleSendMessage} />
       </Form>
     </>
-  )
+  );
 }
 
 export default App;
