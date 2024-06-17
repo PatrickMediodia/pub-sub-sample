@@ -75,10 +75,6 @@ function App() {
         },
       });
     }
-
-    return (() => {
-
-    });
   }, [readyState]);
 
   return (
