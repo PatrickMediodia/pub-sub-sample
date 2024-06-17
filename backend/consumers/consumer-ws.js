@@ -19,30 +19,38 @@ wss.on('error', console.error);
 wss.on('connection', async function connection(ws) {
     console.log("\nA new client connected");
 
-    ws.on('message', async function message(d) {
-        const { type, data } = JSON.parse(d.toString());
-        const { username, topic, message } = data;
+    ws.on('message', async function message(data) {
+        processMessage(data, ws);
+    });
 
-        switch (type) {
-            case 'topic':
-                await establishConnection(username, ws);
-                await subscribe(username, topic);
-                break;
-
-            case 'message':
-                await publish(username, topic, message);
-                break;
-
-            default:
-                console.log('Cannot process message');
-                break;
-        }
+    ws.on('close', function close() {
+        cleanUpOnDisconnect(ws);
     });
 });
 
 server.listen(PORT, () => console.log(`Listening on port:${PORT}`));
 
-const establishConnection = async (username, ws) => {
+const processMessage = async (d, ws) => {
+    const { type, data } = JSON.parse(d.toString());
+    const { username, topic, message } = data;
+
+    switch (type) {
+        case 'topic':
+            await establishRedisConnection(username, ws);
+            await subscribe(username, topic);
+            break;
+
+        case 'message':
+            await publish(username, topic, message);
+            break;
+
+        default:
+            console.log('Cannot process message');
+            break;
+    }
+};
+
+const establishRedisConnection = async (username, ws) => {
     if (clients[username] != null) return;
 
     clients[username] = {
@@ -56,9 +64,21 @@ const establishConnection = async (username, ws) => {
 const subscribe = async (username, topic) => {
     await clients[username].client.unsubscribe();
 
-    console.log(`\nUser: ${username} subscribed to topic: ${topic}`);
+    console.log(`User: ${username} subscribed to topic: ${topic}`);
+
     await clients[username].client.subscribe(topic, (message) => {
-        console.log(`New Message: ${message}`);
+        console.log(`\nNew Message: ${message} sent to ${username}`);
         clients[username].connection.send(message);
     });
+};
+
+const cleanUpOnDisconnect = function close (ws) {
+    for (const key of Object.keys(clients)) {
+        if (clients[key].connection === ws) {
+            clients[key].client.disconnect();
+            delete clients[key];
+            console.log(`Client ${key} disconnected`);
+            return;
+        }
+    };
 };

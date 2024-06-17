@@ -41,6 +41,7 @@ function App() {
     setMessages([]);
   };
 
+  // send message to topic
   const handleSendMessage = (e) => {
     e.preventDefault();
     sendJsonMessage({
@@ -54,7 +55,7 @@ function App() {
     setMessage('');
   };
 
-  // get message from consumer
+  // get message from ws consumer
   useEffect(() => {
     if (lastJsonMessage === null) return;
 
@@ -74,6 +75,10 @@ function App() {
         },
       });
     }
+
+    return (() => {
+
+    });
   }, [readyState]);
 
   return (
