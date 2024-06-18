@@ -3,17 +3,22 @@ import publish from "./publisher.js";
 
 const { argv } = yargs(process.argv.slice(2));
 
-const main = async () => {
+setInterval(async () => {
     await publish(
         argv.username,
         argv.topic,
         argv.message,
     );
+}, Math.floor(Math.random() * 5000));
 
-    process.exit(0);
-}
-
-main();
+// const main = async () => {
+//     await publish(
+//         argv.username,
+//         argv.topic,
+//         argv.message,
+//     );
+// };
+// main();
 
 //TODO: Add args to publisher-cli
 // --topic=<topic>
